@@ -3,8 +3,9 @@ import ReactDom from 'react-dom';
 import Header from './Components/Header/Header';
 import SearchPanel from './Components/SearchPanel/SearchPanel';
 import ToDoList from './Components/ToDoList/ToDoList';
+import FilterBtns from './Components/FilterBtns/FiltetBtns';
 import ItemAdd from './Components/ItemAdd/ItemAdd'; 
-
+import './index.css';
 
 class App extends Component  {
 
@@ -12,10 +13,12 @@ class App extends Component  {
 
     state = {
         todos: [
-            this.createToDoItem('Igor'),
-            this.createToDoItem('Murli'),
-            this.createToDoItem('Hui'),
-        ]
+            this.createToDoItem('HTML'),
+            this.createToDoItem('CSS'),
+            this.createToDoItem('JS'),
+        ],
+        term: '',
+        filter: 'all',
     }
 
     createToDoItem (text) {
@@ -80,19 +83,54 @@ class App extends Component  {
             }
         })
     }
+    search = (todos, term) => {
+        if(term.length === 0) {
+            return todos
+        };
+        return todos.filter((item) => {
+            return item.text.toLowerCase()
+            .indexOf(term.toLowerCase()) > -1;
+        });
+    };
+    onSearchChange = (term) => {
+        this.setState({term})
+    }
+    onFilterChange = (filter) => {
+        this.setState({filter})
+    }
+    filter (items, filter) {
+        switch(filter) {
+            case 'all':
+                return items;
+            case 'active':
+                return items.filter((item) => !item.done);
+            case 'done': 
+                return items.filter((item) => item.done);
+            default:
+                return items
+        }
+    }
     render() {
-        const {todos} = this.state;
+        const {todos, term, filter} = this.state;
         const doneCount = todos.filter((el) => el.done).length;
         const todoCount = todos.length - doneCount;
+        const visibleItems = this.filter(
+            this.search(todos, term), filter);
+
         return (    
-            <div>         
+            <div className="app__container">         
                 <Header
                     doneCount={doneCount}
                     todoCount={todoCount}
                 />
-                <SearchPanel/>
+                <SearchPanel
+                    onSearchChange={this.onSearchChange}/>
+                <FilterBtns
+                    filter={filter}
+                    onFilterChange={this.onFilterChange}/>
+
                 <ToDoList
-                    todos = {todos}
+                    todos = {visibleItems}
                     deleted = {this.deleteItem}
                     onToggleImportant = {this.onToggleImportant}
                     onToggleDone = {this.onToggleDone   }

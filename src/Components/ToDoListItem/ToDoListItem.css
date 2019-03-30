@@ -1,3 +1,13 @@
 .done {
     text-decoration:line-through;
 }
+.toDoText {
+    width: 70%;
+}
+.item__btns {
+    width: 30%;
+}
+.item__container {
+    display: flex;
+    justify-content: space-between;
+}
